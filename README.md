@@ -50,10 +50,13 @@ src/scene/props/            shared ball, phone, generated app screens
 
 The build is plain static files, so the server's existing nginx serves them directly: no new port, no pm2 process, no running container. Docker is only used for a throwaway build, so the host's Node version is never touched.
 
-One-time setup on the server:
+One-time setup on the server. The repo is private, so the server reads it with a read-only deploy key
+(add `~/.ssh/gullycricket_deploy.pub` under the repo's Settings → Deploy keys):
 
 ```bash
-git clone https://github.com/beekntr/gullycricket.git ~/apps/gullycricket
+ssh-keygen -t ed25519 -f ~/.ssh/gullycricket_deploy -N "" -C "gullycricket server"
+printf '\nHost github-gullycricket\n  HostName github.com\n  User git\n  IdentityFile ~/.ssh/gullycricket_deploy\n  IdentitiesOnly yes\n' >> ~/.ssh/config
+git clone git@github-gullycricket:beekntr/gullycricket.git ~/apps/gullycricket
 sudo mkdir -p /var/www/gullycricket && sudo chown "$USER": /var/www/gullycricket
 ~/apps/gullycricket/deploy/deploy.sh
 
