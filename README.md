@@ -66,7 +66,13 @@ sudo ln -s /etc/nginx/sites-available/gullycricket.kshitijsinghbhati.in /etc/ngi
 sudo nginx -t && sudo systemctl reload nginx
 ```
 
-Cloudflare proxies the domain. With SSL/TLS mode **Flexible**, the port 80 block is enough. With **Full** or **Full (strict)**, uncomment the 443 block in the nginx config and point it at the certificate your other subdomains already use.
+Cloudflare proxies the domain. With SSL/TLS mode **Full** or **Full (strict)**, add HTTPS the same way as the server's other sites:
+
+```bash
+sudo certbot --nginx -d gullycricket.kshitijsinghbhati.in
+```
+
+With **Flexible**, skip certbot: Cloudflare only talks to port 80.
 
 Every update after that:
 
