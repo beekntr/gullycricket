@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>%VITE_BRAND_NAME% — Fantasy cricket where every ball counts</title>
+    <meta
+      name="description"
+      content="%VITE_BRAND_NAME% is fantasy cricket built for people who watch every ball. Pick your XI, score live, and join contests."
+    />
+    <meta name="theme-color" content="#0B0B0A" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='%23B3261E'/%3E%3C/svg%3E"
+    />
+  </head>
+  <body>
+    <div
+      class="loader"
+      data-loader
+      role="progressbar"
+      aria-label="Loading"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      aria-valuenow="0"
+    >
+      <p class="loader__value"><span data-loader-value>0</span><span class="loader__unit">%</span></p>
+      <span class="loader__track"><span class="loader__bar" data-loader-bar></span></span>
+    </div>
+
+    <!-- The one persistent WebGL canvas. Decorative: every message on the page is real HTML text. -->
+    <canvas class="webgl" data-webgl aria-hidden="true"></canvas>
+
+    <header class="site-header">
+      <a class="wordmark" href="#top">%VITE_BRAND_NAME%</a>
+      <a class="header-link" href="#download">Get the app</a>
+    </header>
+
+    <main id="top">
+      <!-- 1. HERO -->
+      <section class="hero" id="hero" data-chapter="hero" aria-labelledby="hero-title">
+        <div class="hero__inner">
+          <div class="hero__meta" data-hero-exit>
+            <p class="eyebrow" data-hero-fade>
+              <span class="eyebrow__mark" aria-hidden="true"></span>Fantasy cricket
+            </p>
+            <p class="hero__lede" data-hero-fade>
+              Pick your XI from real squads. Score off every ball bowled. Back your read of the match
+              against everyone who thinks they know better.
+            </p>
+          </div>
+          <h1 class="display hero__title" id="hero-title" data-hero-title>
+            <span class="hero__line">The game</span>
+            <span class="hero__line">inside the game</span>
+          </h1>
+          <div class="hero__cue" data-hero-exit aria-hidden="true">
+            <p class="scroll-cue" data-hero-fade>Scroll<span class="scroll-cue__line"></span></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. THE DELIVERY -->
+      <section class="chapter chapter--delivery" id="delivery" data-chapter="delivery" aria-labelledby="delivery-title">
+        <div class="chapter__inner delivery">
+          <p class="eyebrow" data-reveal><span class="eyebrow__mark" aria-hidden="true"></span>Live scoring</p>
+          <h2 class="display delivery__title" id="delivery-title">
+            <span class="line">Every ball</span>
+            <span class="line">counts.</span>
+          </h2>
+          <p class="chapter__lede" data-reveal>
+            A dot ball, a thick edge, a direct hit. Every delivery is scored the moment it is bowled, so your
+            team moves with the match, not after it.
+          </p>
+        </div>
+      </section>
+
+      <!-- 3. THE PHONE -->
+      <section class="chapter chapter--phone" id="app" data-chapter="phone" aria-labelledby="phone-title">
+        <div class="chapter__inner split">
+          <div class="split__copy">
+            <p class="eyebrow" data-reveal>The app</p>
+            <h2 class="display split__title" id="phone-title">
+              <span class="line">The match,</span>
+              <span class="line">in your</span>
+              <span class="line">hand.</span>
+            </h2>
+            <p class="chapter__lede" data-reveal>
+              Squads, lineups, live scores and every contest you are in, in one app that keeps pace with the game.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. FEATURES -->
+      <section class="chapter chapter--features" id="features" data-chapter="features" aria-labelledby="features-title">
+        <div class="chapter__inner split">
+          <div class="split__copy features">
+            <h2 class="visually-hidden" id="features-title">How it works</h2>
+            <p class="features__count" aria-hidden="true"><span data-step-count>01</span> / 03</p>
+            <ol class="features__steps">
+              <li class="feature" data-feature>
+                <p class="eyebrow">Build your XI</p>
+                <h3 class="display feature__title"><span class="line">Pick your</span> <span class="line">eleven.</span></h3>
+                <p class="chapter__lede">
+                  Eleven players, 100 credits and a captain who scores double. Pick from both squads the moment the toss
+                  is called.
+                </p>
+                <ul class="feature__facts">
+                  <li><strong>100</strong> credits</li>
+                  <li><strong>2&times;</strong> captain</li>
+                  <li><strong>1.5&times;</strong> vice-captain</li>
+                </ul>
+              </li>
+              <li class="feature" data-feature>
+                <p class="eyebrow">Live points</p>
+                <h3 class="display feature__title"><span class="line">Score as</span> <span class="line">it happens.</span></h3>
+                <p class="chapter__lede">
+                  Runs, wickets, catches and dot balls land on your scorecard ball by ball, so you know where you stand
+                  before the replay does.
+                </p>
+                <ul class="feature__facts">
+                  <li><strong>~2s</strong> ball to points</li>
+                  <li><strong>Live</strong> rank</li>
+                  <li><strong>Every</strong> ball logged</li>
+                </ul>
+              </li>
+              <li class="feature" data-feature>
+                <p class="eyebrow">Join contests</p>
+                <h3 class="display feature__title"><span class="line">Back your</span> <span class="line">read.</span></h3>
+                <p class="chapter__lede">
+                  Head-to-head with a friend or a league of thousands. Pick your table, lock your team at the toss, and
+                  watch it play out.
+                </p>
+                <ul class="feature__facts">
+                  <li><strong>&#8377;49</strong> mega entry</li>
+                  <li><strong>Free</strong> practice</li>
+                  <li><strong>Private</strong> leagues</li>
+                </ul>
+              </li>
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. STADIUM / SCALE -->
+      <section class="chapter chapter--stadium" id="scale" data-chapter="stadium" aria-labelledby="stadium-title">
+        <div class="chapter__inner stadium">
+          <div class="stadium__head">
+            <p class="eyebrow" data-reveal>Match day</p>
+            <h2 class="display stadium__title" id="stadium-title">
+              <span class="line">Built for</span>
+              <span class="line">match day.</span>
+            </h2>
+          </div>
+          <div class="stadium__foot">
+            <dl class="stats">
+              <div class="stat">
+                <dt>Players</dt>
+                <dd><span data-count="2.4" data-format="decimal">2.4</span>M</dd>
+              </div>
+              <div class="stat">
+                <dt>Matches covered</dt>
+                <dd><span data-count="18500" data-format="grouped">18,500</span></dd>
+              </div>
+              <div class="stat">
+                <dt>Contests a season</dt>
+                <dd><span data-count="960">960</span>K</dd>
+              </div>
+            </dl>
+            <p class="stats__note" data-reveal>Illustrative figures for this presentation.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. CTA -->
+      <section class="cta" id="download" data-chapter="cta" aria-labelledby="cta-title">
+        <div class="cta__backdrop" aria-hidden="true"></div>
+        <div class="cta__inner">
+          <p class="eyebrow eyebrow--ink" data-reveal>
+            <span class="eyebrow__mark" aria-hidden="true"></span>Get the app
+          </p>
+          <h2 class="display cta__title" id="cta-title">
+            <span class="line">Your XI</span>
+            <span class="line">is waiting.</span>
+          </h2>
+          <p class="cta__lede" data-reveal>Free to download. Your first contest is on us.</p>
+          <div class="stores" data-reveal>
+            <a class="store" href="#download">
+              <svg class="store__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path
+                  d="M16.4 12.6c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.9-.8-3.1-.8-1.6 0-3.1.9-3.9 2.4-1.7 2.9-.4 7.2 1.2 9.5.8 1.1 1.7 2.4 2.9 2.4 1.2 0 1.6-.8 3-.8s1.8.8 3.1.7c1.3 0 2.1-1.2 2.8-2.3.9-1.3 1.3-2.6 1.3-2.7 0 0-2.4-.9-2.4-3.9zM14.2 5.7c.6-.8 1.1-1.9 1-3-1 0-2.1.6-2.8 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.8-1.3z"
+                />
+              </svg>
+              <span class="store__text"><small>Download on the</small> App Store</span>
+            </a>
+            <a class="store" href="#download">
+              <svg class="store__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M5 3.6v16.8a1 1 0 0 0 1.5.86l14.1-8.4a1 1 0 0 0 0-1.72L6.5 2.74A1 1 0 0 0 5 3.6z" />
+              </svg>
+              <span class="store__text"><small>Get it on</small> Google Play</span>
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer__inner">
+        <p class="wordmark wordmark--ink">%VITE_BRAND_NAME%</p>
+        <div class="footer__notes">
+          <p>
+            <strong>Play responsibly.</strong> Fantasy sports involve an element of financial risk and may be habit
+            forming. Set limits, take breaks, and play for fun.
+          </p>
+          <p class="footer__age"><span class="age-badge" aria-hidden="true">18+</span> Only for users aged 18 and over.</p>
+          <p>Available in [Region A], [Region B] and [Region C]. Not available in [restricted regions].</p>
+        </div>
+        <nav class="footer__nav" aria-label="Legal">
+          <a href="#">Terms</a>
+          <a href="#">Privacy</a>
+          <a href="#">Responsible play</a>
+          <a href="#">Help</a>
+        </nav>
+        <p class="footer__legal">&copy; 2026 %VITE_BRAND_NAME%. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
