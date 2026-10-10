@@ -12,7 +12,7 @@ const $ = (root, selector) => root.querySelector(selector)
 const $$ = (root, selector) => [...root.querySelectorAll(selector)]
 
 export function animateDelivery(root, state, { reducedMotion }) {
-  const chapter = createChapter(root, state, { pin: 2.5, reducedMotion, staticProgress: 0.6 })
+  const chapter = createChapter(root, state, { pin: 3, reducedMotion, staticProgress: 0.6 })
   const { timeline } = chapter
   if (!timeline) return chapter
 
