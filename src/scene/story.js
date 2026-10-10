@@ -39,7 +39,7 @@ export function closeUpOrientation(time, out) {
 // ---------------------------------------------------------------------------------------------
 // Delivery → Phone → Features: the ball "caught" in front of the camera, then studio-lit.
 
-export const CATCH_POINT = new THREE.Vector3(-8, -9, 250)
+export const CATCH_POINT = new THREE.Vector3(-3, -9, 250)
 export const STORY_FOV = 22
 
 /** Camera distance from the caught ball: phone-sized framing, pulled back on portrait screens. */

@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { createBatter } from './batter.js'
 import { createBowler, RELEASE_AT } from './bowler.js'
 import { BALL_RADIUS } from './props/ball.js'
 import {
@@ -19,13 +20,16 @@ import { ease, logLerp, nextIdle, segment } from './utils/timing.js'
 /*
  * Chapter 2 — THE DELIVERY.
  * Starts on the hero's seam close-up: the ball is in a fast bowler's hands, frozen at the top of
- * his leap. The camera pulls back down a floodlit pitch to the striker's end, time restarts, and he
- * bowls: the ball pitches on a good length and crashes into middle stump. Bails fly, he celebrates,
- * and the ball deflects up into the lens, where it hangs as the pitch dissolves into darkness.
- * Ends on CATCH_POINT, studio-lit, for the phone chapter.
+ * his leap. The camera pulls back down a floodlit pitch to a keeper's-eye view over the batter's
+ * shoulder, time restarts, and he bowls. The batter lifts his bat and plants a forward defence;
+ * the ball pitches on a good length, beats him between bat and pad, and crashes into middle stump.
+ * Bails fly, the bowler celebrates, the batter looks back, and the ball deflects up into the lens,
+ * where it hangs as the pitch dissolves into darkness. Ends on CATCH_POINT, studio-lit, for the
+ * phone chapter.
  *
  * The ball in his hands at the top of the leap is the world origin, exactly where the hero left it.
- * The pitch is laid out around the bowler's measured action (front foot, release point).
+ * The pitch is laid out around the bowler's measured action (front foot, release point), and the
+ * batter is placed so the ball's line runs through the gap between his front pad and bat.
  */
 
 const { lerp, clamp } = THREE.MathUtils
@@ -63,12 +67,29 @@ const STUMP_RADIUS = 0.2
 const STUMP_SPACING = 1.25
 const PITCH_CENTER = new THREE.Vector3(PITCH_X, PITCH_Y, (BOWLER_STUMPS_Z + STRIKER_STUMPS_Z) / 2)
 const PITCH_LIGHT = new THREE.Vector3(-0.35, 1, 0.3).normalize()
+const STRIKER_FOV = 27 // a touch wider at the striker's end, to hold wicket, batter and bowler together
+const STUMP_FOV = 25 // stump-cam, looking down the ball's line through the batter's gate
 
 // The ball's flight: out of the hand, pitching 6 m short, rising into middle stump at knee height.
 const RELEASE_POINT = layout.release
 const BOUNCE_POINT = new THREE.Vector3(PITCH_X + 0.9, PITCH_Y + BALL_R, STRIKER_STUMPS_Z - 6 * UPM)
 const IMPACT_POINT = new THREE.Vector3(PITCH_X + 0.15, PITCH_Y + 3, STRIKER_STUMPS_Z - STUMP_RADIUS - BALL_R * 0.9)
 const S_BOUNCE = (BOUNCE_POINT.z - RELEASE_POINT.z) / (IMPACT_POINT.z - RELEASE_POINT.z)
+
+// --- Place the batter so the ball goes through the gate -------------------------------------------
+
+const BATTER_GATE = 1.7 // in his own frame: off-side distance between his front pad and bat
+const BATTER_TURN = Math.PI / 2 // left shoulder down the pitch: his +X → world -Z, his +Z (off side) → world +X
+const BATTER_PLACE = (() => {
+  const batter = createBatter()
+  const frontAnkle = new THREE.Vector3()
+  batter.pose(1) // full forward defence
+  batter.footPosition('L', frontAnkle)
+  const frontFootZ = STRIKER_STUMPS_Z - 1.22 * UPM - 0.7 * UPM // stretched 0.7 m out of his crease
+  const gateZ = frontFootZ + 2 // between the front pad and the bat
+  const gateX = lerp(BOUNCE_POINT.x, IMPACT_POINT.x, (gateZ - BOUNCE_POINT.z) / (IMPACT_POINT.z - BOUNCE_POINT.z))
+  return new THREE.Vector3(gateX - BATTER_GATE, PITCH_Y, frontFootZ + frontAnkle.x)
+})()
 
 // --- Timeline, in chapter progress u --------------------------------------------------------------
 
@@ -215,12 +236,23 @@ function breakWicket(wicket, t) {
 export function createDeliveryScene({ stage, rig, ball, quality }) {
   const camera = stage.camera
   const state = { u: 0 }
-  const frame = { closeUp: 0.5, catchCamera: new THREE.Vector3() }
+  // strikerView/Aim: where the pull-back ends, high over the batter's shoulder, beside the copy.
+  // stumpView/Aim: low behind the wicket on the ball's line, where the gate and the wicket show.
+  // catchCamera: the hand-off pose for the phone chapter.
+  const frame = {
+    closeUp: 0.5,
+    strikerView: new THREE.Vector3(),
+    strikerAim: new THREE.Vector3(),
+    stumpView: new THREE.Vector3(),
+    stumpAim: new THREE.Vector3(),
+    catchCamera: new THREE.Vector3(),
+  }
   const fade = createFade(INK)
 
   let trail = null
   let mark = null
   let bowler = null
+  let batter = null
   let wicket = null
 
   const section = { id: 'delivery', state, group: null, load, resize, update }
@@ -273,18 +305,33 @@ export function createDeliveryScene({ stage, rig, ball, quality }) {
     await nextIdle()
 
     // The bowler, placed so the ball in his hands at the top of the leap is the origin.
+    const whites = {
+      kit: fadeable(new THREE.MeshStandardMaterial({ color: 0xe8e3d6, roughness: 0.85 })),
+      skin: fadeable(new THREE.MeshStandardMaterial({ color: 0x7a4b30, roughness: 0.6 })),
+      shoes: fadeable(new THREE.MeshStandardMaterial({ color: 0xdedad0, roughness: 0.7 })),
+    }
     bowler = createBowler({
       ballHeight: -PITCH_Y,
-      materials: {
-        kit: fadeable(new THREE.MeshStandardMaterial({ color: 0xe8e3d6, roughness: 0.85 })),
-        skin: fadeable(new THREE.MeshStandardMaterial({ color: 0x7a4b30, roughness: 0.6 })),
-        hair: fadeable(new THREE.MeshStandardMaterial({ color: 0x141312, roughness: 0.8 })),
-        shoes: fadeable(new THREE.MeshStandardMaterial({ color: 0xdedad0, roughness: 0.7 })),
-      },
+      materials: { ...whites, hair: fadeable(new THREE.MeshStandardMaterial({ color: 0x141312, roughness: 0.8 })) },
     })
     const bowlerPlace = new THREE.Group()
     bowlerPlace.position.copy(layout.offset)
     bowlerPlace.add(bowler.object)
+
+    // The batter, side-on at the striker's end.
+    batter = createBatter({
+      materials: {
+        ...whites,
+        helmet: fadeable(new THREE.MeshStandardMaterial({ color: 0x1f3b2c, roughness: 0.35 })),
+        grille: fadeable(new THREE.MeshStandardMaterial({ color: 0x2a2a28, metalness: 0.8, roughness: 0.4 })),
+        willow: fadeable(new THREE.MeshStandardMaterial({ color: 0xd9c79f, roughness: 0.65 })),
+        grip: fadeable(new THREE.MeshStandardMaterial({ color: 0x151514, roughness: 0.8 })),
+      },
+    })
+    const batterPlace = new THREE.Group()
+    batterPlace.position.copy(BATTER_PLACE)
+    batterPlace.rotation.y = BATTER_TURN
+    batterPlace.add(batter.object)
 
     // Where the ball pitched.
     mark = new THREE.Mesh(
@@ -296,7 +343,7 @@ export function createDeliveryScene({ stage, rig, ball, quality }) {
 
     trail = createTrail()
 
-    group.add(strip, outfield, bowlerPlace, mark, trail.mesh)
+    group.add(strip, outfield, bowlerPlace, batterPlace, mark, trail.mesh)
     group.updateMatrixWorld(true) // so the bowler's hand has a world position before the first render
     section.group = group
   }
@@ -304,6 +351,18 @@ export function createDeliveryScene({ stage, rig, ball, quality }) {
   function resize({ aspect }) {
     frame.closeUp = closeUpDistance(aspect)
     frame.catchCamera.copy(CATCH_POINT).add(new THREE.Vector3(0, 0, catchDistance(aspect)))
+    // High behind the stumps and to the leg side: the broken wicket below, the batter mid-frame, the
+    // bowler beyond him, all clear of one another. Portrait screens sit closer to the line.
+    if (aspect < 0.9) frame.strikerView.set(PITCH_X - 3, PITCH_Y + 46, STRIKER_STUMPS_Z + 110)
+    else frame.strikerView.set(PITCH_X - 24, PITCH_Y + 40, STRIKER_STUMPS_Z + 95)
+    // Wide screens aim left of the pitch, so the run-up plays out right of the copy.
+    if (aspect < 0.9) frame.strikerAim.set(PITCH_X, PITCH_Y + 2, STRIKER_STUMPS_Z - 67)
+    else frame.strikerAim.set(PITCH_X - 12, PITCH_Y + 6, STRIKER_STUMPS_Z - 90)
+    // Stump-cam: on the ball's line, raised just enough to see the delivery coming over the
+    // batter's helmet and down into the gap between his bat and front pad.
+    const back = aspect < 0.9 ? 62 : 48
+    frame.stumpView.set(PITCH_X + 1.2, PITCH_Y + 25, STRIKER_STUMPS_Z + back)
+    frame.stumpAim.set(PITCH_X + 0.6, PITCH_Y + 1, STRIKER_STUMPS_Z - 45)
   }
 
   // Scratch objects, reused every frame.
@@ -317,8 +376,6 @@ export function createDeliveryScene({ stage, rig, ball, quality }) {
   const direction = new THREE.Vector3()
   const lightDirection = new THREE.Vector3()
   const lightTarget = new THREE.Vector3()
-  const ORIGIN = new THREE.Vector3()
-  const MID_PITCH_AIM = new THREE.Vector3(PITCH_X, -14, (RELEASE_POINT.z + IMPACT_POINT.z) / 2)
 
   function update(dt, time, isOwner) {
     if (!isOwner) return
@@ -334,6 +391,11 @@ export function createDeliveryScene({ stage, rig, ball, quality }) {
         ? lerp(0, FROZEN_DRIFT, segment(u, ...PULL_BACK))
         : lerp(FROZEN_DRIFT, 1, segment(u, ...ACTION))
     bowler.pose(action, ease.inOut(segment(u, ...CELEBRATE)))
+
+    // --- Batter: stance (frozen with everything else), backlift as the bowler gathers, forward
+    // defence planted before the ball arrives, then a look back at the broken wicket ---
+    const shot = u < U_RELEASE ? lerp(0, 0.4, segment(u, ACTION[0], U_RELEASE)) : lerp(0.4, 1, ease.soft(segment(s, 0.1, 0.8)))
+    batter.pose(shot, ease.inOut(segment(u, U_IMPACT + 0.02, U_IMPACT + 0.12)))
 
     // --- Ball: in his hand, then in flight, then deflected off the stumps into the lens ---
     bowlingOrientation(s, flight)
@@ -362,24 +424,28 @@ export function createDeliveryScene({ stage, rig, ball, quality }) {
     // --- The wicket breaks on impact ---
     breakWicket(wicket, segment(u, ...STUMPS_FLY) * 1.4)
 
-    // --- Camera: dolly back along the line to the striker's end, then hold and follow the ball in ---
+    // --- Camera: dolly back to the keeper's-eye view, hold through the delivery, then come down
+    // with the deflected ball into the hand-off pose ---
     const startDistance = BALL_RADIUS + frame.closeUp
-    const endDistance = frame.catchCamera.length()
-    direction.copy(Z_AXIS).lerp(aim.copy(frame.catchCamera).normalize(), pull).normalize()
+    const endDistance = frame.strikerView.length()
+    direction.copy(Z_AXIS).lerp(aim.copy(frame.strikerView).normalize(), pull).normalize()
     camera.position.copy(direction).multiplyScalar(logLerp(startDistance, endDistance, pull))
+    // Once the ball is out of the hand, glide down onto its line behind the stumps.
+    const toStumps = ease.inOut(segment(u, U_RELEASE, lerp(U_RELEASE, U_IMPACT, 0.65)))
+    camera.position.lerp(frame.stumpView, toStumps)
+    const intoLens = ease.inOut(segment(u, U_IMPACT + 0.02, DRIFT[1]))
+    camera.position.lerp(frame.catchCamera, intoLens)
 
-    // Hold the ball centred while pulling back; frame the bowler; glance down the pitch after the
-    // release, only half-following the ball so the wicket breaks right of the copy; then follow
-    // the deflected ball fully into the lens.
-    aim.lerpVectors(ORIGIN, MID_PITCH_AIM, ease.soft(segment(s, 0, 0.45)))
+    // Hold the ball centred while pulling back, settle on the wide striker's-end framing for the
+    // run-up, look down the line through the gate, then follow the deflected ball into the lens.
     const holdBall = 1 - ease.soft(segment(u, 0.2, PULL_BACK[1]))
-    const halfFollow = 0.45 * ease.soft(segment(s, 0.5, 1))
-    const intoLens = ease.soft(segment(u, U_IMPACT + 0.02, U_IMPACT + 0.16))
-    look.lerpVectors(aim, ballPosition, Math.max(holdBall, lerp(halfFollow, 1, intoLens)))
+    aim.lerpVectors(frame.strikerAim, frame.stumpAim, toStumps)
+    look.lerpVectors(aim, ballPosition, Math.max(holdBall, intoLens))
     camera.lookAt(look)
 
     const toBall = camera.position.distanceTo(ballPosition)
-    rig.lens(lerp(SEAM_CLOSE_UP.fov, STORY_FOV, pull), clamp(toBall * 0.02, 0.01, 1), 1400)
+    const fov = lerp(lerp(lerp(SEAM_CLOSE_UP.fov, STRIKER_FOV, pull), STUMP_FOV, toStumps), STORY_FOV, intoLens)
+    rig.lens(fov, clamp(toBall * 0.02, 0.01, 1), 1400)
 
     // --- Light: seam rake → floodlit pitch → studio light on the caught ball ---
     lightDirection.lerpVectors(SEAM_CLOSE_UP.lightDirection, PITCH_LIGHT, pull)

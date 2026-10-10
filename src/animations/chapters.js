@@ -12,14 +12,15 @@ const $ = (root, selector) => root.querySelector(selector)
 const $$ = (root, selector) => [...root.querySelectorAll(selector)]
 
 export function animateDelivery(root, state, { reducedMotion }) {
-  const chapter = createChapter(root, state, { pin: 3, reducedMotion, staticProgress: 0.6 })
+  const chapter = createChapter(root, state, { pin: 3, reducedMotion, staticProgress: 0.71 }) // still: ball in the gate
   const { timeline } = chapter
   if (!timeline) return chapter
 
-  // Copy rides in with the section while the camera pulls back, then clears before the catch.
+  // Copy rides in with the section while the camera pulls back, and clears as the ball leaves the
+  // bowler's hand, so the batter being beaten and the wicket breaking play on a clean frame.
   riseWords(timeline, splitHeading($(root, 'h2')), 0.12, 0.14)
   fadeUp(timeline, $$(root, '[data-reveal]'), 0.18)
-  fadeAway(timeline, $(root, '.chapter__inner'), 0.78)
+  fadeAway(timeline, $(root, '.chapter__inner'), 0.44)
   return chapter
 }
 

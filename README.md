@@ -13,7 +13,7 @@ npm run build    # static site in dist/, deploy anywhere
 | # | Chapter | 3D |
 |---|---------|----|
 | 1 | Hero | Lacquered ball under a rim light; camera pushes into the seam |
-| 2 | The delivery | The ball is in a fast bowler's hands, frozen mid-leap; pull back down a floodlit pitch, he bowls, the ball pitches and smashes middle stump, bails fly, he celebrates, and the ball deflects into the lens |
+| 2 | The delivery | The ball is in a fast bowler's hands, frozen mid-leap; pull back over the batter's shoulder, he bowls, the camera drops to stump-cam, the ball beats the forward defence between bat and pad and smashes middle stump, bails fly, the bowler celebrates, and the ball deflects into the lens |
 | 3 | The phone | Phone turns into frame; ball drops into the screen, which ripples on |
 | 4 | Features (3 steps) | Phone re-poses per step, screen wipes; player cards fan out, points chips fly, a trophy rises |
 | 5 | Stadium | Low-poly ground at night; towers flick on one by one as the camera rises; counters climb |
